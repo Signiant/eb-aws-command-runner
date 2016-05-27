@@ -1,0 +1,12 @@
+eb_applications:
+ - application:
+     name: "my-eb-application"
+     region: us-east-1
+     beanstalk_envs:
+      - name: "my-eb-environment-a"
+      - name: "my-eb-environment-b"
+
+command:
+  region: us-east-1
+  document: "my-ec2-run-command-document"
+  hash: "my-ec2-run-command-document-hash"

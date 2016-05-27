@@ -1,0 +1,7 @@
+{
+    "require": {
+        "twbs/bootstrap": "*",
+        "mustangostang/spyc": "*",
+        "aws/aws-sdk-php": "3.*"
+    }
+}
