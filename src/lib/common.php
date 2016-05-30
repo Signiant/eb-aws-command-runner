@@ -1,10 +1,8 @@
 <?php
 
-function readConfig($filename)
+function dump_var($var)
 {
-	// Read the config from a YAML file and put the config entries in a named array
-	$config_yaml = Spyc::YAMLLoad($filename);
-	return ($config_yaml);
+	print "<pre>";print_r($var);print "</pre>";
 }
 
 function timestamp_sort($a,$b)
@@ -12,11 +10,40 @@ function timestamp_sort($a,$b)
 	return $a['timestamp'] < $b['timestamp'];
 }
 
-function renderPrompts($promptsArray)
+function doAlert($type,$text)
+{
+	print "<div class='alert " . $type . "'>\n";
+	print "<strong>" . $text . "</strong>\n";
+	print "</div>\n";
+}
+
+function getPromptVals($POST)
+{
+	$promptArray = array();
+
+	foreach ($POST as $prompt => $promptVal)
+	{
+		if ($prompt == "submit") { continue; }
+
+		$promptArray[$prompt] = array($promptVal);
+	}
+
+	return $promptArray;
+}
+
+function renderPrompts($promptsArray,$POST)
 {
 	foreach ($promptsArray as $prompt)
 	{
-		$defaultValue = str_replace('"', "", $prompt['DefaultValue']);
+		if ($POST && array_key_exists($prompt['Name'],$POST))
+		{
+			// There is a value already set so pre-fill the form with it
+			$defaultValue = $POST[$prompt['Name']];
+		}else
+		{
+			// Use the default value from the prarm on the document
+			$defaultValue = str_replace('"', "", $prompt['DefaultValue']);
+		}
 
 		print "<div class='form-group'>\n";
 		print "\t<label class='control-label col-sm-3' for='". $prompt['Name'] . "''>" . $prompt['Name'] . "</label>\n";

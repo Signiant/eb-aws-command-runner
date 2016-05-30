@@ -3,6 +3,7 @@
 	require "lib/common.php";
   require "lib/config.php";
   require "lib/run_commands.php";
+  require "lib/beanstalk.php";
 
 	ob_implicit_flush(TRUE);
 	date_default_timezone_set('America/New_York');
@@ -10,18 +11,20 @@
 
 <?php
   $prompts = array();
+  $ebInstances = array();
 
   // Read the config File
   $appConfig = readConfig("config.yaml");
 
   // Setup the AWS Sdk
   $sharedConfig = [
-  	'region' => $appConfig['eb_application']['region'],
+  	'region' => getRegion($appConfig),
   	'version' => 'latest'
   ];
 
   $sdk = new Aws\Sdk($sharedConfig);
   $ssmClient = $sdk->createSsm();
+  $ebClient = $sdk->createElasticBeanstalk();
 
   // Get the prompts for the run command document
   $prompts = getCommandPrompts($ssmClient,getDocumentName($appConfig));
@@ -59,18 +62,17 @@
     			<div class='panel-body'>
     				This tool allows you to run a command on all EC2 instances in a beanstalk environment(s)
     				<p class="text-center">&nbsp;</p>
+
             The command will
-            <?php
-              print "<b>" . getCommandDisplay($appConfig) . "</b>";
-            ?>
+            <?php print "<b>" . getCommandDisplay($appConfig) . "</b>"; ?>
             from the EB application
-            <?php
-              print "<b>" . getEbApplication($appConfig) . "</b>";
-             ?>
+            <?php print "<b>" . getEbApplication($appConfig) . "</b>"; ?>
+             in region <?php print "<b>" . getRegion($appConfig) . "</b>"; ?>
+
             <p class="text-center">&nbsp;</p>
             <form method='post' action='' class="form-horizontal" role="form">
               <?php
-                renderPrompts($prompts);
+                renderPrompts($prompts,$_POST);
                ?>
                <div class='form-group'>
                   <div class='col-sm-offset-3 col-sm-9'>
@@ -80,6 +82,43 @@
             </form>
     			</div>
     	</div> <!-- /panel -->
+
+<?php
+  if ( (isset($_POST["submit"])) )
+  {
+    print "<div class='panel panel-default'>\n";
+  	print "<div class='panel-heading'>\n";
+  	print "<h3 class='panel-title'>Results</h3>\n";
+  	print "</div>\n";
+  	print "<div class='panel-body'>\n";
+
+    // Get the prompt values
+    $promptVals = getPromptVals($_POST);
+
+    // get the instances for the EB app
+    $ebInstances = getEBInstances($ebClient,getEbApplication($appConfig),getEBEnvs($appConfig));
+
+    if ($ebInstances)
+    {
+      $commandID = runCommand($ssmClient,getDocumentName($appConfig),getDocumentHash($appConfig),$promptVals,$ebInstances);
+
+      if ($commandID)
+      {
+        $commandOutput = getCommandOutput($ssmClient,$commandID);
+      } else {
+        doAlert('alert-danger',"Unable to run command - check logs for details");
+
+      }
+    } else {
+      doAlert('alert-danger',"No Running E2 instances found for EB application " . getEbApplication($appConfig));
+    }
+
+    // get the results
+    print "</div>";
+  }
+?>
+
+
 
 </div> <!-- /container -->
 
