@@ -1,16 +1,31 @@
 <?php
 	require 'vendor/autoload.php';
 	require "lib/common.php";
-	//require "lib/bounce.php";
+  require "lib/config.php";
+  require "lib/run_commands.php";
 
 	ob_implicit_flush(TRUE);
 	date_default_timezone_set('America/New_York');
 ?>
 
 <?php
+  $prompts = array();
+
   // Read the config File
   $appConfig = readConfig("config.yaml");
-  #print "<PRE>"; print_r($appConfig); print "</PRE>";
+
+  // Setup the AWS Sdk
+  $sharedConfig = [
+  	'region' => $appConfig['eb_application']['region'],
+  	'version' => 'latest'
+  ];
+
+  $sdk = new Aws\Sdk($sharedConfig);
+  $ssmClient = $sdk->createSsm();
+
+  // Get the prompts for the run command document
+  $prompts = getCommandPrompts($ssmClient,getDocumentName($appConfig));
+
   // Show which env this will run against
   // Get the info for the command
   // Render the prompts for the command
@@ -41,29 +56,29 @@
     		<div class="panel-heading">
     			<h3 class="panel-title">Elastic Beanstalk Command Runner</h3>
     		</div>
-    		<form method='post' action='' class="form-horizontal" role="form">
     			<div class='panel-body'>
     				This tool allows you to run a command on all EC2 instances in a beanstalk environment(s)
     				<p class="text-center">&nbsp;</p>
-            <div class="form-group">
-              <label for="eb_app" class="col-sm-2 control-label">Beanstalk Application</label>
-              <div class="col-sm-10">
-              <select class='form-control' name='eb_app'>\
-                <?php
-                displayChooserOptions($appConfig);
-                 ?>
-              </select>
-            </div>
-
-          </div>
-          <div class='form-group'>
-            <div class='col-sm-offset-2 col-sm-10'>
-              <button type='submit' class='btn btn-primary' name='submit'>Run Command</button>
-            </div>
-          </div>
-    				</div>
-    				&nbsp;
-    		</form>
+            The command will
+            <?php
+              print "<b>" . getCommandDisplay($appConfig) . "</b>";
+            ?>
+            from the EB application
+            <?php
+              print "<b>" . getEbApplication($appConfig) . "</b>";
+             ?>
+            <p class="text-center">&nbsp;</p>
+            <form method='post' action='' class="form-horizontal" role="form">
+              <?php
+                renderPrompts($prompts);
+               ?>
+               <div class='form-group'>
+                  <div class='col-sm-offset-3 col-sm-9'>
+                    <button type='submit' class='btn btn-primary' name='submit'>Run Command</button>
+                  </div>
+                </div>
+            </form>
+    			</div>
     	</div> <!-- /panel -->
 
 </div> <!-- /container -->
