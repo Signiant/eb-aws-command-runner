@@ -6,7 +6,7 @@
   require "lib/beanstalk.php";
 
 	ob_implicit_flush(TRUE);
-	date_default_timezone_set('America/New_York');
+	date_default_timezone_set(@date_default_timezone_get());
 ?>
 
 <?php
@@ -31,12 +31,6 @@
 
   // Get the prompts for the run command document
   $prompts = getCommandPrompts($ssmClient,getDocumentName($appConfig));
-
-  // Show which env this will run against
-  // Get the info for the command
-  // Render the prompts for the command
-  // Run the command
-  // Get the results and display
 ?>
 
 <!DOCTYPE html>
@@ -127,8 +121,6 @@
     print "</div>"; // Panel body
   }
 ?>
-
-
 
 </div> <!-- /container -->
 
