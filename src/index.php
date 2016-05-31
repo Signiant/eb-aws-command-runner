@@ -14,7 +14,10 @@
   $ebInstances = array();
 
   // Read the config File
-  $appConfig = readConfig("config.yaml");
+  $configFile = $_GET['config'];
+  if (empty($configFile)) { $configFile = 'config.yaml'; }
+
+  $appConfig = readConfig($configFile);
 
   // Setup the AWS Sdk
   $sharedConfig = [
@@ -54,6 +57,7 @@
   </head>
   <body>
     <div class="container">
+      <?php if (file_exists("menu.php")) { include 'menu.php'; } ?>
 
       <div class="panel panel-default">
     		<div class="panel-heading">
@@ -105,16 +109,22 @@
       if ($commandID)
       {
         $commandOutput = getCommandOutput($ssmClient,$commandID);
+
+        if ($commandOutput)
+        {
+          outputCommandResults($commandOutput);
+        } else {
+          doAlert('alert-warning',"No output returned from the command execution");
+        }
+        // TODO format the output and display in the panel
       } else {
         doAlert('alert-danger',"Unable to run command - check logs for details");
-
       }
     } else {
       doAlert('alert-danger',"No Running E2 instances found for EB application " . getEbApplication($appConfig));
     }
 
-    // get the results
-    print "</div>";
+    print "</div>"; // Panel body
   }
 ?>
 

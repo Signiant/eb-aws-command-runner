@@ -58,4 +58,29 @@ function renderPrompts($promptsArray,$POST)
 		print "</div>\n";
 	}
 }
+
+function outputCommandResults($commandOutput)
+{
+	print "<table class='table'>\n";
+	print "<tr>\n";
+	print "<th>Instance ID</th>\n";
+	print "<th>Command Status</th>\n";
+	print "<th>Command Output</th>\n";
+	print "</tr>\n";
+
+	foreach ($commandOutput['CommandInvocations'] as $commandResult)
+	{
+		$instanceId = $commandResult['InstanceId'];
+		$commandStatus = $commandResult['CommandPlugins'][0]['Status'];
+		$output = $commandResult['CommandPlugins'][0]['Output'];
+
+		print "<tr>\n";
+		print "<td>" . $instanceId . "</td>\n";
+		print "<td>" . $commandStatus . "</td>\n";
+		print "<td>" . $output . "</td>\n";
+		print "</tr>";
+	}
+	print "</table>\n";
+}
+
 ?>

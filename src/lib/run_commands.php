@@ -49,23 +49,41 @@ function runCommand($ssmClient,$documentName,$hash,$parameters,$instances)
 
 function getCommandOutput($ssmClient,$commandID)
 {
-  $output = array();
+  $result = array();
+  $pending = true;
+  $attempt = 1;
+  $maxAttempts = 10;
 
-  try {
-    $result = $ssmClient->listCommandInvocations([
-      'CommandId' => $commandID,
-      'Details' => true
-    ]);
-  } catch (Exception $e) {
-    error_log("getCommandOutput EXCEPTION: " . $e->getMessage());
-  }
-
-  if ($result)
+  while ( ($pending == true) && ($attempt != $maxAttempts) )
   {
-    // TODO handle pending status
-    dump_var($result['CommandInvocations']);
+    try {
+      $result = $ssmClient->listCommandInvocations([
+        'CommandId' => $commandID,
+        'Details' => true
+      ]);
+    } catch (Exception $e) {
+      error_log("getCommandOutput EXCEPTION: " . $e->getMessage());
+    }
+
+    if ($result)
+    {
+      foreach ($result['CommandInvocations'] as $aResult)
+      {
+        $commandStatus = $aResult['CommandPlugins'][0]['Status'];
+        error_log("Command ID " . $commandID . " Status: " . $commandStatus);
+        if ($commandStatus != "Pending")
+        {
+          // If we're not pending, break out of this retry loop
+          $pending = false;
+        } else
+        {
+          $attempt++;
+          sleep(1);
+        }
+      }
+    }
   }
 
-  return $output;
+  return $result;
 }
 ?>
