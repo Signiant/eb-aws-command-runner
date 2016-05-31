@@ -25,9 +25,13 @@ command:
   display: "Check External Network Connectivity"
   document: "remote_server_connectivity_test"
   hash: "12345678901234567890123456789012345678901234567890"
+  s3bucket: "output-buckets-for-results"
+  s3keyprefix: "myprefix"
 ```
 * document is the name of the EC2 Run Command document
 * Hash is the sha256 hash associated with the document (obtained via the AWS Console)
+* s3bucket is a pre-existing S3 bucket where the command output will be placed
+* s3keyprefix is a key (folder) in the bucket where the command output will be placed
 
 # Usage
 ## On an EC2 instance with a role configured to allow access to DynamoDB

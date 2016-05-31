@@ -26,6 +26,16 @@ function getCommandDisplay($appConfig)
 	return $appConfig['command']['display'];
 }
 
+function getCommandS3Bucket($appConfig)
+{
+	return $appConfig['command']['s3bucket'];
+}
+
+function getCommandS3KeyPrefix($appConfig)
+{
+	return $appConfig['command']['s3keyprefix'];
+}
+
 function getRegion($appConfig)
 {
 	return $appConfig['eb_application']['region'];

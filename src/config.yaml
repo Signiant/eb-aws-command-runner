@@ -1,12 +1,13 @@
-eb_applications:
- - application:
-     name: "my-eb-application"
-     region: us-east-1
-     beanstalk_envs:
-      - name: "my-eb-environment-a"
-      - name: "my-eb-environment-b"
+eb_application:
+  name: "my-eb-application"
+  region: us-east-1
+  beanstalk_envs:
+    "my-eb-env-a"
+    "my-eb-env-b"
 
 command:
-  region: us-east-1
-  document: "my-ec2-run-command-document"
-  hash: "my-ec2-run-command-document-hash"
+  display: "Check External Network Connectivity"
+  document: "remote_server_connectivity_test"
+  hash: "12345678901234567890123456789012345678901234567890"
+  s3bucket: "my-output-bucket"
+  s3keyprefix: "myprefix"

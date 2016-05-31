@@ -98,7 +98,7 @@
 
     if ($ebInstances)
     {
-      $commandID = runCommand($ssmClient,getDocumentName($appConfig),getDocumentHash($appConfig),$promptVals,$ebInstances);
+      $commandID = runCommand($ssmClient,getDocumentName($appConfig),getCommandS3Bucket($appConfig),getCommandS3KeyPrefix($appConfig),getDocumentHash($appConfig),$promptVals,$ebInstances);
 
       if ($commandID)
       {

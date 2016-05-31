@@ -21,20 +21,34 @@ function getCommandPrompts($ssmClient,$documentName)
   return $retVal;
 }
 
-function runCommand($ssmClient,$documentName,$hash,$parameters,$instances)
+function runCommand($ssmClient,$documentName,$s3_bucket,$s3_prefix,$hash,$parameters,$instances)
 {
   $commandID = "";
   $comment = "Run on " . date('l jS \of F Y h:i:s A');
 
+  dump_var($s3_bucket);
+
+  $commandArray = array(
+    'Comment' => $comment,
+    'DocumentHash' => $hash,
+    'DocumentHashType' => Sha256,
+    'DocumentName' => $documentName,
+    'InstanceIds' => $instances,
+    'Parameters' => $parameters
+  );
+
+  if ($s3_bucket)
+  {
+    $commandArray['OutputS3BucketName'] = $s3_bucket;
+  }
+
+  if ($s3_prefix)
+  {
+    $commandArray['OutputS3KeyPrefix'] = $s3_prefix;
+  }
+
   try {
-    $result = $ssmClient->sendCommand([
-      'Comment' => $comment,
-      'DocumentHash' => $hash,
-      'DocumentHashType' => Sha256,
-      'DocumentName' => $documentName,
-      'InstanceIds' => $instances,
-      'Parameters' => $parameters
-    ]);
+    $result = $ssmClient->sendCommand($commandArray);
   } catch (Exception $e) {
     error_log("runCommand EXCEPTION: " . $e->getMessage());
   }
