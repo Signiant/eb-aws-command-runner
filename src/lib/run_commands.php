@@ -26,8 +26,6 @@ function runCommand($ssmClient,$documentName,$s3_bucket,$s3_prefix,$hash,$parame
   $commandID = "";
   $comment = "Run on " . date('l jS \of F Y h:i:s A');
 
-  dump_var($s3_bucket);
-
   $commandArray = array(
     'Comment' => $comment,
     'DocumentHash' => $hash,
