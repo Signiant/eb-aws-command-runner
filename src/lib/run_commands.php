@@ -64,7 +64,7 @@ function getCommandOutput($ssmClient,$commandID)
   $result = array();
   $pending = true;
   $attempt = 1;
-  $maxAttempts = 10;
+  $maxAttempts = 20;
 
   while ( ($pending == true) && ($attempt != $maxAttempts) )
   {
