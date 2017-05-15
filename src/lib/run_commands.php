@@ -83,7 +83,7 @@ function getCommandOutput($ssmClient,$commandID)
       {
         $commandStatus = $aResult['CommandPlugins'][0]['Status'];
         error_log("Command ID " . $commandID . " Status: " . $commandStatus);
-        if ( ($commandStatus == "Pending") || (empty($commandStatus)) )
+        if ( ($commandStatus == "Pending") || ($commandStatus == "InProgress") || (empty($commandStatus)) )
         {
           // At least one result is pending so break out of the foreach and go re-get the results
           $pending = true;
